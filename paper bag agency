@@ -1,0 +1,15 @@
+import java.util.Scanner;
+public class Paper
+{
+    public static void main(String args[])
+    {
+        int w,x,y;
+     Scanner sc= new Scanner(System.in);
+      w=sc.nextInt();//1000
+      x=sc.nextInt();//2
+      y=sc.nextInt();//1
+      int a=(w*x)-(w*y)-100;
+      System.out.println(a);
+      
+      }
+}
