@@ -1,0 +1,15 @@
+import java.util.Scanner;
+public class Simple
+{
+    public static void main(String args[])
+    {
+        float p,r,t;
+     Scanner sc = new Scanner(System.in);
+      p = sc.nextFloat();
+      r = sc.nextFloat();
+      t = sc.nextFloat();
+     float si;
+     si=(p*t*r)/100;
+     System.out.print( + si);
+    }
+}
