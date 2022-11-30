@@ -1,0 +1,40 @@
+import java.util.Scanner;
+public class Same
+{
+    public static void main(String[] args)
+    {
+       Scanner sc= new Scanner(System.in);
+       {
+          int a=sc.nextInt();
+          int b=sc.nextInt();
+           int c[]=new int[a];
+           int d[]=new int[b];
+           int large=0,large1=0;
+           for(int i=0;i<a;i++)
+           {
+               c[i]=sc.nextInt();
+           }
+           for(int j=0;j<b;j++)
+           {
+                d[j]=sc.nextInt();
+           }
+           for(int i=0;i<a;i++)
+           {
+               large=large+c[i];
+           }
+            for(int j=0;j<b;j++)
+            {
+                large1=large1+d[j];
+            }
+            if(a==b&&large==large1)
+            {
+                System.out.println("Same");
+            }
+            else
+            {
+                System.out.println("Not Same");
+            }
+       
+        }
+    }
+}
