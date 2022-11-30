@@ -1,0 +1,17 @@
+import java.util.Scanner;
+public class Series8
+{
+    public static void main(String[] args)
+    {
+       Scanner sc= new Scanner(System.in);
+       Long n=sc.nextLong();
+       int a=4;
+       System.out.printf("%d",a);
+       
+       for(int i=1;i<n;i++)
+       {
+           a=a+i*i;
+           System.out.printf("  %d",a);
+       }
+    }
+}
