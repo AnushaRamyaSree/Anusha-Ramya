@@ -1,0 +1,24 @@
+import java.util.Scanner;
+public class Triangle
+{
+    public static void main(String args[])
+    {
+        Scanner sc= new Scanner(System.in);
+        System.out.println("Enter the value for side1");
+        int a=sc.nextInt();
+        System.out.println("Enter the value for side2");
+        int b=sc.nextInt();
+        System.out.println("Enter the value for side3");
+        int c=sc.nextInt();
+        if((a+b)>c && (a+c)>b && (b+c)>a)
+        {
+            System.out.println("sides form a triangle");
+        }
+        else
+        {
+         System.out.println("sides does not form a triangle");   
+        }
+        
+        
+    }   
+}
