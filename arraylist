@@ -1,0 +1,17 @@
+import java.util.*;
+class Main
+{
+    public static void main(String args[])
+    {
+ 
+   
+        ArrayList list=new ArrayList();
+        list.add("nusha RAmya sree");
+        list.add("ya sree");
+        list.add("anush");
+        System.out.println(list);
+    
+    }
+   
+    
+}
