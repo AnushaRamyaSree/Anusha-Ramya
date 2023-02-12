@@ -1,0 +1,28 @@
+import java.util.Scanner;
+class Abc extends Thread
+{
+    public void run()
+    {
+        for(int i=0;i<10;i++)
+        {
+         System.out.println("ramya"+i);
+        }
+    }
+}
+public class Main
+{
+    public static void main(String arg[])
+    {
+        Abc ab=new Abc();
+       // System.out.println(ab.getState());
+        ab.run();
+       // System.out.println(ab.getState());
+        for(int i=0;i<10;i++)
+        {
+            System.out.println("anusha"+i);
+        }
+    }
+}
+
+    
+
