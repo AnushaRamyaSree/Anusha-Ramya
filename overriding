@@ -1,0 +1,23 @@
+class stockmarket {
+    void join() {
+        System.out.println("Are you interested to join in stockmarket");
+    }
+
+    void ready() {
+        System.out.println("if your ready come to company");
+    }
+
+    void company() {
+        System.out.println("Give your respective details in reception for interview");
+    }
+}
+
+class branch extends stockmarket {
+    public static void main(String args[]) {
+        branch b1 = new branch();
+        b1.join();
+        b1.ready();
+        b1.company();
+        System.out.println("if your are selected we call back to u");
+    }
+}
