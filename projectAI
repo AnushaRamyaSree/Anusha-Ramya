@@ -1,0 +1,167 @@
+1:FRONTEND 
+
+Step-1: create a react Vite Project
+Step-2: Chatbot Component
+import React, { useState } from 'react';
+import axios from 'axios';
+
+const Chatbot = () => {
+  const [messages, setMessages] = useState([{ sender: 'bot', text: 'Hello! What service do you need help with today?' }]);
+  const [input, setInput] = useState('');
+  const [serviceId, setServiceId] = useState(null);
+  const [userData, setUserData] = useState({
+    name: '',
+    email: '',
+    zipcode: '',
+    address: '',
+    phone: ''
+  });
+  const [step, setStep] = useState(0);    
+  const handleUserMessage = async () => {
+    if (serviceId) {
+      handlePersonalInfo();
+      return;
+    }
+
+    const response = await axios.post('http://localhost:8000/chat', { message: input, step });
+    const botMessage = response.data.message;
+    setMessages([...messages, { sender: 'user', text: input }, { sender: 'bot', text: botMessage }]);
+    if (response.data.service_id) {
+      setServiceId(response.data.service_id);
+    }
+    
+    setStep(step + 1);
+    setInput('');
+  };
+
+  const handlePersonalInfo = () => {
+    const nextStep = step - 3;  
+    if (nextStep === 0) {
+      setMessages([...messages, { sender: 'bot', text: 'Please provide your name' }]);
+    } else if (nextStep === 1) {
+      setMessages([...messages, { sender: 'bot', text: 'Please provide your email' }]);
+    }
+  };
+
+  return (
+    <div>
+      <div className="chatbox">
+        {messages.map((msg, index) => (
+          <div key={index} className={msg.sender === 'bot' ? 'bot-message' : 'user-message'}>
+            {msg.text}
+          </div>
+        ))}
+      </div>
+      <input
+        type="text"
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+        placeholder="Type your message..."
+      />
+      <button onClick={handleUserMessage}>Send</button>
+    </div>
+  );
+};
+
+export default Chatbot;
+
+
+
+Step-3: Add basic CSS for chatbox
+.chatbox {
+  border: 1px solid #ccc;
+  padding: 20px;
+  height: 400px;
+  overflow-y: scroll;
+  margin-bottom: 10px;
+}
+
+.user-message {
+  text-align: right;
+  margin-bottom: 5px;
+}
+
+.bot-message {
+  text-align: left;
+  margin-bottom: 5px;
+}
+
+input {
+  width: 80%;
+  padding: 10px;
+}
+
+button {
+  padding: 10px;
+Step-4:Main Application
+import React from 'react';
+import Chatbot from './components/Chatbot';
+import './App.css';
+
+function App() {
+  return (
+    <div className="App">
+      <h1>Service Chatbot</h1>
+      <Chatbot />
+    </div>
+  );
+}
+
+export default App;
+
+
+
+ 
+
+
+2.BACKEND
+Step-1:Step up Fast ApI Project
+Step-2:Create FastApI Backend
+from fastapi import FastAPI, Request
+import pandas as pd
+from fastapi.middleware.cors import CORSMiddleware
+
+app = FastAPI()
+
+# Add CORS to allow frontend to interact
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],  # React app's URL
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Load CSV file containing services
+services_df = pd.read_csv('services.csv')
+
+@app.post("/chat")
+async def chat(request: Request):
+    data = await request.json()
+    message = data.get("message")
+    step = data.get("step")
+
+    if step == 0:
+        matched_services = services_df[services_df['Service Name'].str.contains(message, case=False)]
+        if not matched_services.empty:
+            service_id = matched_services.iloc[0]['Service ID']
+            response_message = f"Great! We found the service. Your Service ID is {service_id}."
+            return {"message": response_message, "service_id": service_id}
+        else:
+            return {"message": "Sorry, I couldn't find a matching service. Can you try again?"}
+
+    return {"message": "Can you please provide more information?"}
+
+# Run FastAPI
+if _name_ == "_main_":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
+
+
+
+3.CSV File Example
+Service ID,Service Name,Description
+1,Plumbing,Plumbing services for residential and commercial.
+2,Electrical,Electrical installation and repair.
+3,Landscaping,Landscaping design and maintenance services.
+4.Running the Application
+
