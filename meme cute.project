@@ -1,0 +1,249 @@
+UI Code (React)
+
+1.	Onboarding Component
+import React from 'react';
+
+const Onboarding = () => {
+  return (
+    <div className="onboarding">
+      <h1>Welcome to Meme Cute!</h1>
+      <p>Swipe right on love and laughter.</p>
+      <button>Sign Up with Twitter</button>
+      <button>Sign Up with Instagram</button>
+    </div>
+  );
+};
+
+export default Onboarding;
+
+2.	Profile Creation Component
+
+import React, { useState } from 'react';
+
+const ProfileCreation = () => {
+  const [username, setUsername] = useState('');
+  const [memeUrl, setMemeUrl] = useState('');
+
+  const handleProfileSubmit = () => {
+    console.log('Profile created:', { username, memeUrl });
+  };
+
+  return (
+    <div className="profile-creation">
+      <h2>Create Your Profile</h2>
+      <input 
+        type="text" 
+        placeholder="Username" 
+        value={username} 
+        onChange={(e) => setUsername(e.target.value)} 
+      />
+      <input 
+        type="text" 
+        placeholder="Meme URL" 
+        value={memeUrl} 
+        onChange={(e) => setMemeUrl(e.target.value)} 
+      />
+      <button onClick={handleProfileSubmit}>Create Profile</button>
+    </div>
+  );
+};
+
+export default ProfileCreation;
+
+
+3.	Home Feed Component
+    import React from 'react';
+   const HomeFeed = ({ users }) => {
+  return (
+    <div className="home-feed">
+      {users.map((user) => (
+        <div key={user.id} className="user-card">
+          <img src={user.memeUrl} alt={`${user.username}'s meme`} />
+          <h3>{user.username}</h3>
+          <button>Like</button>
+          <button>Message</button>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+export default HomeFeed;
+
+4.	Chat Interface Component
+import React, { useState } from 'react';
+
+const ChatInterface = () => {
+  const [message, setMessage] = useState('');
+  const [messages, setMessages] = useState([]);
+
+  const handleSendMessage = () => {
+    setMessages([...messages, message]);
+    setMessage('');
+  };
+
+  return (
+    <div className="chat-interface">
+      <div className="messages">
+        {messages.map((msg, index) => (
+          <div key={index} className="message">{msg}</div>
+        ))}
+      </div>
+      <input 
+        type="text" 
+        placeholder="Type a message..." 
+        value={message} 
+        onChange={(e) => setMessage(e.target.value)} 
+      />
+      <button onClick={handleSendMessage}>Send</button>
+    </div>
+  );
+};
+
+export default ChatInterface;
+
+
+
+
+
+
+
+
+
+Styles (CSS)
+
+body {
+  font-family: 'Comic Sans MS', cursive, sans-serif;
+  background-color: #f0f8ff;
+}
+
+.onboarding, .profile-creation, .home-feed, .chat-interface {
+  text-align: center;
+  margin: 20px;
+}
+
+input {
+  padding: 10px;
+  margin: 5px;
+  border: 2px solid #ff69b4;
+  border-radius: 5px;
+}
+
+button {
+  padding: 10px 15px;
+  background-color: #ff69b4;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.user-card {
+  border: 1px solid #ff69b4;
+  border-radius: 10px;
+  padding: 10px;
+  margin: 10px;
+}
+
+.messages {
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.message {
+  margin: 5px 0;
+  padding: 5px;
+  background-color: #fff;
+  border-radius: 5px;
+}
+
+
+BACKEND CODE
+
+.env File
+
+PORT=5000
+MONGO_URI=your_mongo_connection_string
+JWT_SECRET=your_secret_key
+
+
+server.js
+
+const express = require('express');
+const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const cors = require('cors');
+require('dotenv').config();
+
+const app = express();
+const PORT = process.env.PORT || 5000;
+
+app.use(cors());
+app.use(express.json());
+
+mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+    .then(() => console.log('MongoDB connected'))
+    .catch(err => console.error('MongoDB connection error:', err));
+
+const userSchema = new mongoose.Schema({
+  username: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  memes: [{ type: String }] // Array of meme URLs
+});
+
+const User = mongoose.model('User', userSchema);
+app.post('/register', async (req, res) => {
+  const { username, password } = req.body;
+
+  const existingUser = await User.findOne({ username });
+  if (existingUser) {
+    return res.status(400).json({ message: 'Username already exists' });
+  }
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+  const newUser = new User({ username, password: hashedPassword });
+  await newUser.save();
+
+  res.status(201).json({ message: 'User registered successfully!' });
+});
+
+app.post('/login', async (req, res) => {
+  const { username, password } = req.body;
+  const user = await User.findOne({ username });
+
+  if (!user || !(await bcrypt.compare(password, user.password))) {
+    return res.status(401).json({ message: 'Invalid credentials' });
+  }
+
+  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+  res.json({ token, username: user.username });
+});
+
+app.post('/upload-meme', async (req, res) => {
+  const { memeUrl, token } = req.body;
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.id);
+    user.memes.push(memeUrl);
+    await user.save();
+    res.json({ message: 'Meme uploaded successfully!' });
+  } catch (error) {
+    res.status(401).json({ message: 'Unauthorized' });
+  }
+});
+
+app.get('/users', async (req, res) => {
+  const users = await User.find().select('username memes');
+  res.json(users);
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
+
+
