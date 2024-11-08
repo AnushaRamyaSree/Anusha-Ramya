@@ -1,0 +1,128 @@
+                                                            AUTOMATION TESTING
+                                                            Y.Anusha Ramya sree
+
+Requirements:
+•	Automate image upload: Upload an image to the FaceSearch AI Telegram bot, Play Store app, and App Store app.
+•	Click interaction: Simulate clicking buttons (e.g., to skip manual selection) after uploading the image.
+•	Detect backend issues: If the results are missing or the API key is expired, the bot should detect this and trigger an alert.
+•	Cross-platform testing: Ensure that the image upload and result retrieval works correctly on the Telegram bot, Play Store app, and App Store app.
+
+Proposed Solution:
+The solution involves automating each of the three platforms, detecting potential issues, and notifying the appropriate team when something goes wrong. We’ll break it down into the following sections:
+1. Automating the Telegram Bot for FaceSearch AI Goal:
+Automate the image upload and result retrieval process via the FaceSearch AI Telegram bot.
+Steps:
+1.	Telegram Bot API:
+   o	Use python-telegram-bot (Python) or node-telegram-bot-api (Node.js) to interact with the Telegram bot.
+   o	Upload the image: Simulate uploading an image to the bot using the send_photo method.
+   o	Click the buttons: After the image is processed, the bot might prompt for manual selection (e.g., "Proceed with manual selection?"). Automate sending the "No" response to skip this prompt.
+   o	Extract the results: The bot will return the image source URLs. Extract and validate the result (i.e., ensure that the list of URLs is not empty).
+2.	Failure Detection:
+   o	If no results are returned or an error occurs (e.g., expired API key, network issue), detect the failure.
+   o	Error Handling: If results are missing or invalid (e.g., an empty list or failed API response), notify the admin via email and Telegram.
+3.	Automation Script Example (Python):
+from telegram import Bot
+from telegram import InputFile
+# Telegram Bot Setup
+bot = Bot(token='YOUR_BOT_API_TOKEN')
+chat_id = 'YOUR_CHAT_ID'
+# Send image
+bot.send_photo(chat_id=chat_id, photo=open('image.jpg', 'rb'))
+bot.send_message(chat_id=chat_id, text='No')
+result = bot.get_updates()
+if len(result) > 0 and "some expected result" in result:
+    print("Test Passed")
+else:
+    print("Test Failed")
+4.Alert System:
+   o	Use Telegram Bot API to send messages to the admin group or leader if the results are missing or invalid.
+   o	Use SMTP (via SendGrid, Mailgun, or similar) to send an email to the project leader if something goes wrong.
+2. Automating the Play Store App for FaceSearch AI and Sound of Meme
+Goal:
+Automate the testing of the FaceSearch AI and Sound of Meme apps available on Google Play Store.
+Steps:
+1.	Appium for Android Automation:
+  o	Install Appium: Appium can be used to automate mobile apps on Android (and iOS). It works with Android emulators or real devices.
+  o	Test Setup:
+    	Launch the FaceSearch AI or Sound of Meme app from the Play Store on an Android emulator or device.
+    	Automate the process of uploading an image (simulating user actions like selecting an image from the gallery or directly uploading it through the app).
+    	Verify that the app returns the expected results (valid URLs, no errors).
+2.	Appium Script Example (for Android):
+from appium import webdriver
+
+desired_caps = {
+    "platformName": "Android",
+    "platformVersion": "10",
+    "deviceName": "Android Emulator",
+    "appPackage": "com.versusventures.faceSearch",
+    "appActivity": "com.versusventures.faceSearch.MainActivity"
+}
+driver = webdriver.Remote('http://127.0.0.1:4723/wd/hub', desired_caps)
+# Simulate image upload interaction
+driver.find_element_by_id('upload_button').click()
+driver.find_element_by_id('image_picker').click()
+      result = driver.find_element_by_id('results_display').text
+if "valid result" in result:
+    print("Test Passed")
+else:
+    print("Test Failed")
+3.	Failure Detection:
+   o	Automate detection of issues such as:
+      	Missing results (e.g., an empty result list or no image source URLs).
+      	App crashes.
+      	API key failures (e.g., checking for 401 Unauthorized response).
+   o	Alerts: Trigger notifications (via Telegram and Email) when an issue occurs during Play Store testing.
+3. Automating the App Store App for FaceSearch AI Goal:
+Automate the testing of the FaceSearch AI app available on App Store (iOS).
+Steps:
+1.	Appium for iOS Automation:
+   o	Appium can also be used to test iOS apps. You will need a macOS environment with Xcode installed.
+   o	Set up a real device or iOS simulator to run the app.
+   o	The automation process will be similar to Android, where we will simulate the image upload and verify the results.
+2.	Appium Script Example (for iOS):
+desired_caps = {
+    "platformName": "iOS",
+    "platformVersion": "14.4",
+    "deviceName": "iPhone Simulator",
+    "app": "path/to/FaceSearchAI.ipa",
+    "automationName": "XCUITest"
+}
+driver = webdriver.Remote('http://127.0.0.1:4723/wd/hub', desired_caps)
+# Simulate image upload
+driver.find_element_by_accessibility_id("upload_button").click()
+driver.find_element_by_accessibility_id("image_picker").click()
+
+# Check results
+result =driver.find_element_by_accessibility_id("results_display").text
+if "valid result" in result:
+    print("Test Passed")
+else:
+    print("Test Failed")
+3.	Failure Detection:
+   o	The same error detection applies here: missing results, API failures, and crashes.
+   o	Use Telegram and email notifications to alert the relevant team (FaceSearch AI project lead) when issues are detected.
+
+4. Dashboard and Centralized Notification System
+To manage these tests, you can create a centralized dashboard that tracks the results from the Telegram bot, Play Store app, and App Store app tests.
+1.	Dashboard:
+   o	Use Django or Flask (Python) for the backend.
+   o	Use React or Vue.js for the frontend to display real-time test results.
+   o	The dashboard can aggregate data from all platforms (Telegram bot, Play Store, App Store), providing a clear view of test results, failures, and alerts.
+2.	Real-Time Alerts:
+   o	Implement a system where alerts are sent automatically via Telegram Bot and email if a failure is detected during testing.
+3.	Example of Email Notification:
+                import smtplib
+                  from email.mime.text import MIMEText
+                  def send_email(subject, body, recipient_email):
+                  msg = MIMEText(body)
+                  msg['Subject'] = subject
+                 msg['From'] = 'your_email@example.com'
+                 msg['To'] = recipient_email
+                 with smtplib.SMTP('smtp.example.com') as server:
+                server.login(our_email@example.com', 'your_password')
+                server.sendmail(msg['From'], msg['To'], msg.as_string())
+
+Conclusion:
+To automate the FaceSearch AI and Sound of Meme testing across Telegram bot, Play Store app, and App Store app, we will need a combination of Appium (for mobile apps), Telegram Bot API (for Telegram bot automation), and API testing tools (for backend validation). Additionally, a centralized dashboard and alerting system will ensure that issues are detected and the relevant stakeholders are notified immediately.
+This approach will automate the process, reduce manual effort, and help maintain the reliability of  applications across different platforms.
+
